@@ -1,0 +1,75 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-and-deploy-static
+spec:
+  workspaces:
+  - name: shared-workspace
+  params:
+  - name: deployment-name
+    type: string
+    description: name of the deployment to be patched
+  - name: git-url
+    type: string
+    description: url of the git repo for the code of deployment
+  - name: git-revision
+    type: string
+    description: revision to be used from repo of the code for deployment
+    default: "master"
+  - name: IMAGE
+    type: string
+    description: image to be build from the code
+  tasks:
+  - name: fetch-repository
+    taskRef:
+      name: git-clone
+      kind: ClusterTask
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+    params:
+    - name: url
+      value: $(params.git-url)
+    - name: subdirectory
+      value: ""
+    - name: deleteExisting
+      value: "true"
+    - name: revision
+      value: $(params.git-revision)
+  - name: build-code
+    taskRef:
+      name: maven-build
+      kind: Task
+    workspaces:
+      - name: output
+        workspace: shared-workspace
+    params:
+      - name: CONTEXT_DIR
+        value: "."
+    runAfter:
+    - fetch-repository
+  - name: build-image
+    taskRef:
+      name: buildah
+      kind: ClusterTask
+    params:
+    - name: IMAGE
+      value: $(params.IMAGE)
+    - name: TLSVERIFY
+      value: "false"    
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    runAfter:
+    - build-code
+  - name: deploy-2-dev
+    taskRef:
+      name: openshift-client
+      kind: Task
+    params:
+      - name: COMMANDS
+        value: |
+          oc rollout latest dc/coffeeshop-static -n demoapp-dev
+    runAfter:
+    - build-image
+    

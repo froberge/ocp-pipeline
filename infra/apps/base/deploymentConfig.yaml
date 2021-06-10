@@ -1,0 +1,68 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: coffeeshop-static
+    app.kubernetes.io/component: coffeeshop-static
+    app.kubernetes.io/instance: coffeeshop-static
+    app.kubernetes.io/name: coffeeshop-static
+    app.kubernetes.io/part-of: coffeeshop-static
+    app.openshift.io/runtime: java
+    app.openshift.io/runtime-version: latest
+  name: coffeeshop-static
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  test: false
+  selector:
+    app: coffeeshop-static
+    deploymentconfig: coffeeshop-static
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources: {}
+    activeDeadlineSeconds: 21600
+  template:
+    metadata:
+      labels:
+        app: coffeeshop-static
+        deploymentconfig: coffeeshop-static
+    spec:
+      containers:
+        - name: coffeeshop-static
+          image: >-
+            image-registry.openshift-image-registry.svc:5000/demoapp-cicd/coffeeshop-static:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            cpu: 250m 
+            memory: 512Mi 
+          limits:
+            cpu: '1' 
+            memory: 512Mi 
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+    triggers: []
+#    triggers:
+#      - type: ImageChange
+#        imageChangeParams:
+#          automatic: true
+#          containerNames:
+#            - coffeeshop-static
+#          from:
+#            kind: ImageStreamTag
+#            namespace: demoapp-cicd
+#            name: 'coffeeshop-static:latest'
+#      - type: ConfigChange

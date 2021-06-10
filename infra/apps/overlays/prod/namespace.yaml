@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/description: This projec is use to contain the demo app and act as the production environment
+    openshift.io/display-name: Demo App Prod
+  name: demoapp-prod

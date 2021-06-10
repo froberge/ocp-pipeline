@@ -1,0 +1,12 @@
+- op: add
+  path: /subjects/-
+  value:
+    kind: ServiceAccount
+    name: pipeline
+    namespace: demoapp-dev
+- op: add
+  path: /subjects/-
+  value:
+    kind: ServiceAccount
+    name: pipeline
+    namespace: demoapp-prod

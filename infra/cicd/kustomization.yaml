@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: demoapp-cicd
+resources:
+- namespace.yaml
+- image-pullers.yaml
+- project-rolebinding.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+patchesJson6902:
+- target:
+    group: rbac.authorization.k8s.io
+    version: v1
+    kind: RoleBinding
+    name: system:image-puller
+  path: image-pullers-patch.yaml
