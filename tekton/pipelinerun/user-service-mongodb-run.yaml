@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: user-service-mongodb-deploy-
+spec:
+  pipelineRef:
+    name: knative-app-pipeline
+  serviceAccountName: pipeline    
+  params:
+    - name: IMAGE_NAME
+      value: image-registry.openshift-image-registry.svc:5000/pipeline-demo/user-service-mongodb
+    - name: APP_NAME
+      value: user-service-mongodb
+    - name: GITHUB_REPO_URL
+      value: https://github.com/froberge/user-service-mongodb.git
+    - name: GITHUB_REPO_REVISION
+      value: working_code
+  workspaces:
+    - name: source
+      persistentVolumeClaim:
+        claimName: sources-pvc
+    - name: maven-settings
+      emptyDir: {}

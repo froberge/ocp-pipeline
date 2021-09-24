@@ -1,0 +1,102 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: knative-app-pipeline
+  namespace: pipeline-demo
+  labels:
+    pipeline.openshift.io/runtime: java
+    pipeline.openshift.io/type: knative
+spec:
+  description: >-
+    This Pipeline test, build and deploy a simple quarkus service in knative.
+  params:
+    - name: IMAGE_NAME
+      description: The fully qualified image name.
+    - name: APP_NAME
+      description: The app Name
+    - name: GITHUB_REPO_URL
+      description: The GitHub Repo of the Java Application
+    - name: GITHUB_REPO_REVISION
+      description: The GitHub revision to use
+      default: main
+  workspaces:
+    - name: source
+    - name: maven-settings
+  tasks:
+    - name: clone-sources
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      params:
+        - name: url
+          value: $(params.GITHUB_REPO_URL)
+        - name: revision
+          value: $(params.GITHUB_REPO_REVISION)
+          # do a fresh clone
+        - name: deleteExisting
+          value: 'true'
+      workspaces:
+        - name: output
+          workspace: source
+    - name: test-app
+      taskRef:
+        name: maven
+        kind: ClusterTask
+      runAfter:
+        - clone-sources
+      params:
+        - name: GOALS
+          value:
+            - 'clean'
+            - 'test'
+      workspaces:
+        - name: maven-settings
+          workspace: maven-settings
+        - name: source
+          workspace: source
+    - name: build-app
+      taskRef:
+        name: maven
+        kind: ClusterTask
+      runAfter:
+        - test-app
+      params:
+        - name: GOALS
+          value:
+            - '-DskipTests'
+            - 'clean'
+            - 'package'
+      workspaces:
+        - name: maven-settings
+          workspace: maven-settings
+        - name: source
+          workspace: source
+    - name: build-app-image
+      taskRef:
+        name: buildah
+        kind: ClusterTask
+      runAfter:
+        - build-app
+      params:
+        - name: IMAGE
+          value: '$(params.IMAGE_NAME)'
+        # since pushing to internal registry we skip TLS verify
+        - name: TLSVERIFY
+          value: 'false'
+      workspaces:
+        - name: source
+          workspace: source
+    - name: deploy-knative-service
+      taskRef:
+        name: kn
+        kind: ClusterTask
+      runAfter:
+        - build-app-image
+      params:
+        - name: ARGS
+          value:
+            - 'service'
+            - 'create'
+            - '$(params.APP_NAME)'
+            - '--force'
+            - '--image=$(params.IMAGE_NAME)@$(tasks.build-app-image.results.IMAGE_DIGEST)'

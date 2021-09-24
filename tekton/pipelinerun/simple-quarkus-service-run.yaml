@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: simple-quarkus-service-deploy-
+spec:
+  pipelineRef:
+    name: knative-app-pipeline
+  serviceAccountName: pipeline    
+  params:
+    - name: IMAGE_NAME
+      value: image-registry.openshift-image-registry.svc:5000/pipeline-demo/simple-quarkus-service
+    - name: APP_NAME
+      value: simple-quarkus-service
+    - name: GITHUB_REPO_URL
+      value: https://github.com/froberge/simple-quarkus-service.git
+    - name: GITHUB_REPO_REVISION
+      value: main
+  workspaces:
+    - name: source
+      persistentVolumeClaim:
+        claimName: sources-pvc
+    - name: maven-settings
+      emptyDir: {}
