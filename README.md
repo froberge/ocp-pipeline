@@ -122,14 +122,10 @@ OpenShift Pipelines will automatically add and configures a `Service Account` na
 oc get serviceaccount
 ```
 
-To run the maven tasks we need to create a workspace for maven to store the source code and one to cache the artifacts. For this, we will create 2 PVC `sources-pvc` and `maven-repo-pvc` using the following command.
+To run the maven tasks we need to create a workspace for maven to store the source code. For this, we will create a PVC `sources-pvc` using the following command.
 ```
 oc apply -n pipeline-demo -f tekton/volumes/source-pvc.yaml
 ```
-```
-oc apply -f tekton/volumes/maven-repo-pvc.yaml
-```
-
 
 #### Required Cluster Task
 
