@@ -71,7 +71,7 @@ spec:
           workspace: maven-settings
         - name: source
           workspace: source
-    - name: build-app-image
+    - name: build-image
       taskRef:
         name: buildah
         kind: ClusterTask
@@ -91,7 +91,7 @@ spec:
         name: kn
         kind: ClusterTask
       runAfter:
-        - build-app-image
+        - build-image
       params:
         - name: ARGS
           value:
@@ -99,4 +99,4 @@ spec:
             - 'create'
             - '$(params.APP_NAME)'
             - '--force'
-            - '--image=$(params.IMAGE_NAME)@$(tasks.build-app-image.results.IMAGE_DIGEST)'
+            - '--image=$(params.IMAGE_NAME)@$(tasks.build-image.results.IMAGE_DIGEST)'

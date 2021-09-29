@@ -122,10 +122,14 @@ OpenShift Pipelines will automatically add and configures a `Service Account` na
 oc get serviceaccount
 ```
 
-To run the maven tasks we need to create a workspace for maven to store the source code. For this, we will create a PVC `sources-pvc` using the following command.
+To run the maven tasks we need to create a workspace for maven to store the source code and one to cache the artifacts. For this, we will create 2 PVC `sources-pvc` and `maven-repo-pvc` using the following command.
 ```
 oc apply -n pipeline-demo -f tekton/volumes/source-pvc.yaml
 ```
+```
+oc apply -f tekton/volumes/maven-repo-pvc.yaml
+```
+
 
 #### Required Cluster Task
 
@@ -140,7 +144,7 @@ To create the pipeline we need the following cluster tasks to be available:
 
 We have finished setting up our environment, it is now time to deploy the pipeline. 
 ```
-oc apply -n pipeline-demo -f tekton/piepelines/knative-app-pipeline.yaml
+oc apply -n pipeline-demo -f tekton/pipelines/knative-app-pipeline.yaml
 ```
 
 #### Create the PipelineRun
@@ -148,7 +152,7 @@ oc apply -n pipeline-demo -f tekton/piepelines/knative-app-pipeline.yaml
 Now that the pipeline is deploy. Lets create a pipelinerun tu run the pipeline manually.
 
 ```
-oc apply -n pipeline-demo -f tekton/piepelinerun/simple-quarkus-service-run.yaml
+oc create -n pipeline-demo -f tekton/pipelinerun/simple-quarkus-service-run.yam
 ```
 
 ### Triggers
@@ -162,7 +166,7 @@ Here are the different elements in a trigger:
 *`EventListeners`: provide an endpoint, or an event sink, that listen for incoming HTTP-based events with a JSON payload. The `EventListener` performs lightweight event processing on the payload using Event Interceptors, which identify the type of payload and optionally modify it. Pipeline Triggers support four types of Interceptors: Webhook Interceptors, GitHub Interceptors, GitLab Interceptors, and Common Expression Language (CEL) Interceptors.
 
 
-#### Create a Trigger from Github.
+#### Create a Trigger for Github.
 
 Now that we have the pipeline created let create a `TriggerTemplate`:
 ```

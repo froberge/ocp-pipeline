@@ -20,4 +20,5 @@ spec:
       persistentVolumeClaim:
         claimName: sources-pvc
     - name: maven-settings
-      emptyDir: {}
+      persistentVolumeClaim:
+        claimName: maven-repo-pvc
