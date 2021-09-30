@@ -38,7 +38,7 @@ The tutorial is divide in different section:
 * Any Openshift cluster 4.x or CodeReady Container base on OCP 4.3+
 * OpenShift CLI `oc` install and connected to your cluster
 * The [Tekton CLI](https://github.com/tektoncd/cli) `tkn` install
-* Kustomize
+* [Kustomize](https://kustomize.io/)
 
 ### Concepts
 
@@ -74,9 +74,9 @@ easily create a complete CI/CD systems where the execution is
 
 The operator can be installed using the Operator Hub inside the OpenShift Console. Follow [these instruction](/docs/install-pipeline-operator.md) to install the operator using the console,
 
-### User Cluster Tasks
+### Tasks
 
-There are 2 types of tasks that can be created in Tekton.
+There are 2 types of tasks that can be used in Tekton.
 
 `Task`: Are namespace or project bound. The task can be seen using the OpenShift console under `Pipelines ->Tasks->Task` or by using Tekton CLI with the following command: Remember you need to be in the right project since they are project bound.
 ```
@@ -109,15 +109,19 @@ In this tutorial, we will create a Cloud-Native pipeline using cluster tasks.  H
 
 #### Preparation
 
-First, make sure you have installed the OpenShift Serverless operator in your OpenShift cluster. Follow [these instruction](/docs/install-serverless-operator.md) to install the operator using the console if needed.
-
-
 Create a project to use for this tutorial. For simplicity, we will use the OpenShift CLI but these steps could be done in the console.
 ```
 oc new-project pipeline-demo
 ```
 
+We aslo need to install OpenShift Serverless operator in your OpenShift cluster. Follow [these instruction](/docs/install-serverless-operator.md) to install the operator using the console if needed. Since we need to also install nexus, We recommend running this Kustomize scripts.
+
+```
+oc apply -k infra/
+```
+
 OpenShift Pipelines will automatically add and configures a `Service Account` named pipeline that had sufficient permission. Verify if the service account was created with the following command:
+
 ```
 oc get serviceaccount
 ```
