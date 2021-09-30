@@ -36,4 +36,4 @@ spec:
               claimName: sources-pvc
           - name: maven-settings
             configmap:
-              name: maven-settings
+              name: maven-settings-config

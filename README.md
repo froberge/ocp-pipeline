@@ -128,7 +128,7 @@ oc get serviceaccount
 
 To run the maven tasks we need to create a workspace for maven to store the source code. For this, we will create a PVC `sources-pvc` using the following command.
 ```
-oc apply -n pipeline-demo -f tekton/volumes/source-pvc.yaml
+oc apply -n pipeline-demo -f tekton/workspaces/source-pvc.yaml
 ```
 
 #### Required Cluster Task
@@ -152,7 +152,7 @@ oc apply -n pipeline-demo -f tekton/pipelines/knative-app-pipeline.yaml
 Now that the pipeline is deploy. Lets create a pipelinerun tu run the pipeline manually.
 
 ```
-oc create -n pipeline-demo -f tekton/pipelinerun/simple-quarkus-service-run.yam
+oc create -n pipeline-demo -f tekton/pipelinerun/simple-quarkus-service-run.yaml
 ```
 
 ### Triggers
@@ -187,8 +187,7 @@ Now, let's expose the service and retrieve the route URL
 
 ```
 oc expose svc el-github-webhook
-```
-```
+
 oc get route el-github-webhook
 ```
 
