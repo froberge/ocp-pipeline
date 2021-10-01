@@ -5,7 +5,7 @@ metadata:
   namespace: openshift-operators
 spec:
   channel: stable 
-  name: openshift-serverless-operator-rh 
+  name: serverless-operator
   source: redhat-operators 
   sourceNamespace: openshift-marketplace
   installPlanApproval: Automatic

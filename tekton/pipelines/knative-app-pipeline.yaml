@@ -21,7 +21,7 @@ spec:
       default: main
   workspaces:
     - name: source
-    - name: maven-settings
+    - name: m2-repo
   tasks:
     - name: clone-sources
       taskRef:
@@ -51,7 +51,7 @@ spec:
             - 'test'
       workspaces:
         - name: maven-settings
-          workspace: maven-settings
+          workspace: m2-repo
         - name: source
           workspace: source
     - name: build-app
@@ -68,7 +68,7 @@ spec:
             - 'package'
       workspaces:
         - name: maven-settings
-          workspace: maven-settings
+          workspace: m2-repo
         - name: source
           workspace: source
     - name: build-image

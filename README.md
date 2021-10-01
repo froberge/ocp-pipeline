@@ -109,16 +109,43 @@ In this tutorial, we will create a Cloud-Native pipeline using cluster tasks.  H
 
 #### Preparation
 
-Create a project to use for this tutorial. For simplicity, we will use the OpenShift CLI but these steps could be done in the console.
+There are possibility.
+* [Option 1](#option-1) Use Kustomize to create the entire thing.
+* [Option 2](#option-1) Create eveything step by step.
+* [Option 3](#option-2) Use Kustomize to bootstrap the project.
+
+#### Option 1:
+
+Create the entire project using this script:
+
+```
+  oc apply -k setup/overlays/prod
+```
+:warning: if you use that option the demo is over, just review what was created in your cluster and execute the pipelinerun or trigger.
+
+---
+
+#### Option 2:
+
+Create a project to use for this tutorial using the OpenShift CLI.
+
 ```
 oc new-project pipeline-demo
 ```
 
-We aslo need to install OpenShift Serverless operator in your OpenShift cluster. Follow [these instruction](/docs/install-serverless-operator.md) to install the operator using the console if needed. Since we need to also install nexus, We recommend running this Kustomize scripts.
+Install OpenShift Serverless operator in your OpenShift cluster. Follow [these instruction](/docs/install-serverless-operator.md) to install the operator using the console if not already present.
+
+#### Option 3:
+
+Create the project and install the Openshift operator by execution this script: We use a loops since the installation of the operators can delay things.
 
 ```
-oc apply -k infra/
+until oc apply -k setup/overlays/demo
+do
+  sleep 20
+done
 ```
+---
 
 OpenShift Pipelines will automatically add and configures a `Service Account` named pipeline that had sufficient permission. Verify if the service account was created with the following command:
 
@@ -126,9 +153,11 @@ OpenShift Pipelines will automatically add and configures a `Service Account` na
 oc get serviceaccount
 ```
 
-To run the maven tasks we need to create a workspace for maven to store the source code. For this, we will create a PVC `sources-pvc` using the following command.
+To run the maven tasks we need to create two workspace. One to store the source code and one to cache de maven dependencies. For this, we will create 2 PVC `sources-pvc` and `maven-repo-pvc` using the following command.
 ```
 oc apply -n pipeline-demo -f tekton/workspaces/source-pvc.yaml
+
+oc apply -n pipeline-demo -f tekton/workspaces/maven-repo-pvc.yaml
 ```
 
 #### Required Cluster Task
