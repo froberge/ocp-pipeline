@@ -116,10 +116,13 @@ There are possibility.
 
 #### Option 1:
 
-Create the entire project using this script:
+Create the entire project using this script: We use a loops since the installation of the operators can delay things.
 
 ```
-  oc apply -k setup/overlays/prod
+until oc apply -k setup/overlays/demo
+do
+  sleep 20
+done
 ```
 :warning: if you use that option the demo is over, just review what was created in your cluster and execute the pipelinerun or trigger.
 
@@ -181,7 +184,7 @@ oc apply -n pipeline-demo -f tekton/pipelines/knative-app-pipeline.yaml
 Now that the pipeline is deploy. Lets create a pipelinerun tu run the pipeline manually.
 
 ```
-oc create -n pipeline-demo -f tekton/pipelinerun/simple-quarkus-service-run.yaml
+oc create -n pipeline-demo -f tekton/pipelineruns/simple-quarkus-service-run.yaml
 ```
 
 ### Triggers
