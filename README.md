@@ -72,7 +72,7 @@ easily create a complete CI/CD systems where the execution is
 
 [Openshift Pipelines](https://www.openshift.com/learn/topics/ci-cd) is provided as an add-on on top of Openshift to benefit from Tekton. It can be installed via an operator available in the Openshift OperatorHub. [Here](https://catalog.redhat.com/software/operators/explore) a way to explore what is available. 
 
-The operator can be installed using the Operator Hub inside the OpenShift Console. Follow [these instruction](/docs/install-pipeline-operator.md) to install the operator using the console,
+The operator can be installed using the Operator Hub inside the OpenShift Console. Follow [these instruction](/docs/install-pipeline-operator.md) to install the operator using the console.
 
 ### Tasks
 
