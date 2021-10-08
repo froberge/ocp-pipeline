@@ -159,7 +159,8 @@ oc get serviceaccount
 To run the maven tasks we need to create two workspace. One to store the source code and one to cache de maven dependencies. For this, we will create 2 PVC `sources-pvc` and `maven-repo-pvc` using the following command.
 ```
 oc apply -n pipeline-demo -f tekton/workspaces/source-pvc.yaml
-
+```
+```
 oc apply -n pipeline-demo -f tekton/workspaces/maven-repo-pvc.yaml
 ```
 
@@ -219,7 +220,8 @@ Now, let's expose the service and retrieve the route URL
 
 ```
 oc expose svc el-github-webhook
-
+```
+```
 oc get route el-github-webhook
 ```
 
