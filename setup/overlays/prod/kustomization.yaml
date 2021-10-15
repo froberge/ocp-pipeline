@@ -5,3 +5,6 @@ bases:
 - ../../base
 - github.com/froberge/openshift-catalog/openshift-pipelines/overlays/stable?ref=main
 - ../../../tekton
+
+resources:
+- namespace.yaml

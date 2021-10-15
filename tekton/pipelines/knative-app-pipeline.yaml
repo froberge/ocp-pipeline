@@ -2,7 +2,6 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: knative-app-pipeline
-  namespace: pipeline-demo
   labels:
     pipeline.openshift.io/runtime: java
     pipeline.openshift.io/type: knative

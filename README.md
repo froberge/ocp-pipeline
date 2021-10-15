@@ -119,7 +119,7 @@ There are possibility.
 Create the entire project using this script: We use a loops since the installation of the operators can delay things.
 
 ```
-until oc apply -k setup/overlays/demo
+until oc apply -k setup/overlays/prod
 do
   sleep 20
 done
@@ -142,6 +142,9 @@ Install OpenShift Serverless operator in your OpenShift cluster. Follow [these i
 
 Create the project and install the Openshift operator by execution this script: We use a loops since the installation of the operators can delay things.
 
+```
+oc new-project pipeline-demo
+```
 ```
 until oc apply -k setup/overlays/demo
 do
