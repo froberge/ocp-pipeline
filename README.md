@@ -49,6 +49,7 @@ The custom resources needed to define a pipeline are listed below:
 * `Pipeline`: the definition of the pipeline and the `Tasks` that it should perform
 * `TaskRun`: the execution and result of running an instance of a task
 * `PipelineRun`: the execution and result of running an instance of a pipeline, which includes several `TaskRuns`
+* `Pipeline Resources`: The set of objects that are going to be used as inputs to a `Task` and can be output by a `Task`
 * `Workspace`: Concept by which the Task step and Pipeline task can share a common filesystem. 
 * [`Triggers`](#triggers): Concept that allows you to automate the running of pipelines ex: A GitHub push triggers a PipelineRun. Using `tektoncd/triggers` with `tektoncd/pipeline` enables you to
 easily create a complete CI/CD systems where the execution is
@@ -58,7 +59,7 @@ easily create a complete CI/CD systems where the execution is
 
 #### Steps to create a pipeline:
 * Create custom or install existing reusable `Tasks` from the [catalogue](https://github.com/tektoncd/catalog)
-* Create a `Pipeline` to define your application's delivery pipeline
+* Create a `Pipeline` and `PipelineResources` to define your application's delivery pipeline
 * Create a `PersistentVolumeClaim` to provide the volume/filesystem for pipeline execution or provide a `VolumeClaimTemplate` which creates a `PersistentVolumeClaim`
 * Create a `PipelineRun` to instantiate and invoke the pipeline
 
@@ -196,7 +197,7 @@ As of now, we have been running the pipeline manually, which is nice in certain 
 
 Here are the different elements in a trigger:
 
-* `TriggerTemplate`: defines a resource template that receives input from the `TriggerBindings`, while then performing a series of actions that result in the creation of a new `PipelineRun`.
+* `TriggerTemplate`: defines a resource template that receives input from the `TriggerBindings`, while then performing a series of actions that result in the creation of new `PipelineResources` and initiation of a new `PipelineRun`.
 * `TriggerBindings`: extract the fields from an event payload and store them as parameters.
 *`EventListeners`: provide an endpoint, or an event sink, that listen for incoming HTTP-based events with a JSON payload. The `EventListener` performs lightweight event processing on the payload using Event Interceptors, which identify the type of payload and optionally modify it. Pipeline Triggers support four types of Interceptors: Webhook Interceptors, GitHub Interceptors, GitLab Interceptors, and Common Expression Language (CEL) Interceptors.
 
