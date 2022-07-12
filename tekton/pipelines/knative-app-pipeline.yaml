@@ -11,12 +11,16 @@ spec:
   params:
     - name: IMAGE_NAME
       description: The fully qualified image name.
+      type: string
     - name: APP_NAME
       description: The app Name
+      type: string
     - name: GITHUB_REPO_URL
       description: The GitHub Repo of the Java Application
+      type: string
     - name: GITHUB_REPO_REVISION
       description: The GitHub revision to use
+      type: string
       default: main
   workspaces:
     - name: source

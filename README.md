@@ -19,26 +19,29 @@ Welcome to the Introduction to Tekton using OpenShift Pipelines demo!
   * Portable across any Kubernetes platform
   * Designed for microservices and decentralized teams
   * Integrated with the OpenShift Developer Console
+---
 
-## Overview
+## Content
 
-This tutorial will walk you through different concepts of Tekton and OpenShift Pipelines while given you some practical knowledge of the tool. It will walk you through pipeline concepts and how to create and run a simple pipeline for building and deploying serverless Cloud Native applications using OpenShift Pipelines.
+This tutorial will walk you through different concepts of Tekton and OpenShift Pipelines while given you some practical knowledge of the tool. It will discuss pipeline concepts and how to create and run a simple pipeline for building and deploying Cloud Native applications using OpenShift Pipelines.
 
-The tutorial is divide in different section:
-* [Learn about Tekton concepts](#concepts)
+Topics that will be cover:
+* [Tutorial Prerequirestes](#prerequisites)
+* [Tekton concepts](#concepts)
 * [Install OpenShift Pipelines](#install-openshift-pipelines)
-* [Use Cluster Tasks](#user-cluster-tasks)
-* [Create a Pipeline](#create-pipeline)
-* [Use OpenShift Pipelines builder to run Pipeline](#run-pipeline)
-* [Trigger a Pipeline](#trigger-pipeline)
-
+* [Demo](#pipeline-demo)
+* [Trigger the Pipeline](#trigger-pipeline)
+---
 
 ### Prerequisites
 
-* Any Openshift cluster 4.x or CodeReady Container base on OCP 4.3+
+* Any Openshift cluster 4.x 
 * OpenShift CLI `oc` install and connected to your cluster
 * The [Tekton CLI](https://github.com/tektoncd/cli) `tkn` install
 * [Kustomize](https://kustomize.io/)
+* `Github` account with a fork of this repository to create the Github Webhook.
+
+---
 
 ### Concepts
 
@@ -54,26 +57,7 @@ The custom resources needed to define a pipeline are listed below:
 easily create a complete CI/CD systems where the execution is
 **entirely** Kubernetes-native.
 
-
-
-#### Steps to create a pipeline:
-* Create custom or install existing reusable `Tasks` from the [catalogue](https://github.com/tektoncd/catalog)
-* Create a `Pipeline`to define your application's delivery pipeline
-* Create a `PersistentVolumeClaim` to provide the volume/filesystem for pipeline execution or provide a `VolumeClaimTemplate` which creates a `PersistentVolumeClaim`
-* Create a `PipelineRun` to instantiate and invoke the pipeline
-
-[Tekton documentation](https://github.com/tektoncd/pipeline/tree/master/docs#learn-more) 
-
-[Tekton Trigger documentation](https://github.com/tektoncd/triggers/blob/master/docs/README.md)
-
-
-### Install OpenShift Pipelines
-
-[Openshift Pipelines](https://www.openshift.com/learn/topics/ci-cd) is provided as an add-on on top of Openshift to benefit from Tekton. It can be installed via an operator available in the Openshift OperatorHub. [Here](https://catalog.redhat.com/software/operators/explore) a way to explore what is available. 
-
-The operator can be installed using the Operator Hub inside the OpenShift Console. Follow [these instruction](/docs/install-pipeline-operator.md) to install the operator using the console.
-
-### Tasks
+#### Tasks
 
 There are 2 types of tasks that can be used in Tekton.
 
@@ -91,29 +75,76 @@ Output should look something like this:
 ![TKN clustertask](docs/images/tkn-cluster-task.png)
 
 
-### Create Pipeline
+##### Basic steps to create a pipeline:
+* Create custom or install existing reusable `Tasks` from the [catalogue](https://github.com/tektoncd/catalog)
+* Create a `Pipeline`to define your application's delivery pipeline
+* Create a `PersistentVolumeClaim` to provide the volume/filesystem for pipeline execution or provide a `VolumeClaimTemplate` which creates a `PersistentVolumeClaim`
+* Create a `PipelineRun` to instantiate and invoke the pipeline
+
+#### Triggers
+
+As of now, we have been running the pipeline manually, which is nice in certain cases. But what about automation. In a complete CI/CD workflow we want these pipelines to be trigger automatically. Hence the need to triggers.
+
+Here are the different elements in a trigger:
+
+* `TriggerTemplate`: defines a resource template that receives input from the `TriggerBindings`, while then performing a series of actions that result in the creation of a new `PipelineRun`.
+* `TriggerBindings`: extract the fields from an event payload and store them as parameters.
+*`EventListeners`: provide an endpoint, or an event sink, that listen for incoming HTTP-based events with a JSON payload. The `EventListener` performs lightweight event processing on the payload using Event Interceptors, which identify the type of payload and optionally modify it. Pipeline Triggers support four types of Interceptors: Webhook Interceptors, GitHub Interceptors, GitLab Interceptors, and Common Expression Language (CEL) Interceptors.
+
+[Tekton documentation](https://github.com/tektoncd/pipeline/tree/master/docs#learn-more) 
+
+[Tekton Trigger documentation](https://github.com/tektoncd/triggers/blob/master/docs/README.md)
+
+---
+
+### Install OpenShift Pipelines
+
+[Openshift Pipelines](https://www.openshift.com/learn/topics/ci-cd) is provided as an add-on on top of Openshift to benefit from Tekton. It can be installed via an operator available in the Openshift OperatorHub. [Here](https://catalog.redhat.com/software/operators/explore) a way to explore what is available. 
+
+The operator can be installed using the Operator Hub inside the OpenShift Console. Follow [these instruction](/docs/install-pipeline-operator.md) to install the operator using the console.
+
+---
+
+## Pipeline Demo
 
 In this tutorial, we will create a Cloud-Native pipeline using cluster tasks.  Here is what the pipeline needs to do.
 
-1. Clone the source code from GitHub. The source code for this service can be found [here]().
+1. Clone the source code from GitHub. The source code for this service can be found [here](https://github.com/froberge/simple-quarkus-service).
 
 1. Use maven task to build and run the test on the application.
 
-1.  Use maven to build the source code.
+1. Use maven to build the source code.
 
 1. Use buildah to build the container image and push it to the internal container registry
 
 1. Deploy the application in OpenShift. We want to deploy the application as a Serverless Knative application
 
 
-#### Preparation
+```mermaid
+flowchart LR;
+    A(Clone source code) --> B(Run Test);
+    B --> C(Build App);
+    C --> D(Build image);
+    D --> E(Deploy App)
+```
 
-There are possibility.
+
+### Required Cluster Task
+
+To create the pipeline we need the following cluster tasks to be available:
+* Git Clone
+* Maven
+* Buildah
+* Openshift Client
+* Kn client
+
+#### Installatiom
+
+There are 2 options to install this demo.
 * [Option 1](#option-1) Use Kustomize to create the entire thing.
-* [Option 2](#option-1) Create eveything step by step.
-* [Option 3](#option-2) Use Kustomize to bootstrap the project.
+* [Option 2](#option-2) Create eveything step by step.
 
-#### Option 1:
+##### Option 1:
 
 Create the entire project using this script: We use a loops since the installation of the operators can delay things.
 
@@ -123,11 +154,11 @@ do
   sleep 20
 done
 ```
-:warning: if you use that option the demo is over, just review what was created in your cluster and execute the pipelinerun or trigger.
+:warning: if you use that option the demo is over, just review what was created in your cluster and execute the pipelinerun or trigger.  To validate the content you can run some of the command you will find in Options 2 to validate the service account, the triggers and pipeline.
 
 ---
 
-#### Option 2:
+##### Option 2:
 
 Create a project to use for this tutorial using the OpenShift CLI.
 
@@ -137,20 +168,6 @@ oc new-project serverless-pipeline-demo
 
 Install OpenShift Serverless operator in your OpenShift cluster. Follow [these instruction](/docs/install-serverless-operator.md) to install the operator using the console if not already present.
 
-#### Option 3:
-
-Create the project and install the Openshift operator by execution this script: We use a loops since the installation of the operators can delay things.
-
-```
-oc new-project serverless-pipeline-demo
-```
-```
-until oc apply -k setup/overlays/demo
-do
-  sleep 20
-done
-```
----
 
 OpenShift Pipelines will automatically add and configures a `Service Account` named pipeline that had sufficient permission. Verify if the service account was created with the following command:
 
@@ -166,23 +183,14 @@ oc apply -n serverless-pipeline-demo -f tekton/workspaces/source-pvc.yaml
 oc apply -n serverless-pipeline-demo -f tekton/workspaces/maven-repo-pvc.yaml
 ```
 
-#### Required Cluster Task
-
-To create the pipeline we need the following cluster tasks to be available:
-* Git Clone
-* Maven
-* Buildah
-* Openshift Client
-* Kn client
-
-#### Create the Pipeline
+###### Create the Pipeline
 
 We have finished setting up our environment, it is now time to deploy the pipeline. 
 ```
 oc apply -n serverless-pipeline-demo -f tekton/pipelines/knative-app-pipeline.yaml
 ```
 
-#### Create the PipelineRun
+###### Create the PipelineRun
 
 Now that the pipeline is deploy. Lets create a pipelinerun tu run the pipeline manually.
 
@@ -190,18 +198,7 @@ Now that the pipeline is deploy. Lets create a pipelinerun tu run the pipeline m
 oc create -n serverless-pipeline-demo -f tekton/pipelineruns/simple-quarkus-service-run.yaml
 ```
 
-### Triggers
-
-As of now, we have been running the pipeline manually, which is nice in certain cases. But what about automation. In a complete CI/CD workflow we want these pipelines to be trigger automatically. Hence the need to triggers.
-
-Here are the different elements in a trigger:
-
-* `TriggerTemplate`: defines a resource template that receives input from the `TriggerBindings`, while then performing a series of actions that result in the creation of a new `PipelineRun`.
-* `TriggerBindings`: extract the fields from an event payload and store them as parameters.
-*`EventListeners`: provide an endpoint, or an event sink, that listen for incoming HTTP-based events with a JSON payload. The `EventListener` performs lightweight event processing on the payload using Event Interceptors, which identify the type of payload and optionally modify it. Pipeline Triggers support four types of Interceptors: Webhook Interceptors, GitHub Interceptors, GitLab Interceptors, and Common Expression Language (CEL) Interceptors.
-
-
-#### Create a Trigger for Github.
+###### Create the Trigger
 
 Now that we have the pipeline created let create a `TriggerTemplate`:
 ```
@@ -218,22 +215,32 @@ Now we can create the eventListener and expose the service:
 oc apply -n serverless-pipeline-demo -f tekton/triggers/github-eventlistener.yaml
 ```
 
+---
+
+#### Trigger Pipeline
+
+Let's see how to trigget the pipeline from a change in Github.
+
+##### Expose the Trigger Event Listener
+
 Now, let's expose the service and retrieve the route URL
 
 ```
-oc expose svc el-github-webhook
+oc expose svc el-github-webhook -n serverless-pipeline-demo
 ```
 ```
-oc get route el-github-webhook
+oc get route el-github-webhook -n serverless-pipeline-demo
 ```
 
 Retrieve the URL needed to create the required Webhook in GitHub
 
 ```
-echo "URL: $(oc  get route el-github-webhook --template='http://{{.spec.host}}')"
+echo "$(oc  get route el-github-webhook -n serverless-pipeline-demo --template='http://{{.spec.host}}')"
 ```
 
-#### Create the GitHub Webhook
+---
+
+##### Create the GitHub Webhook
 
 Open [GitHub](https://github.com/)  in the right repository, go to setting -> Webhook -> Add Webhook
 
