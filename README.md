@@ -22,7 +22,7 @@ Welcome to the Introduction to Tekton using OpenShift Pipelines demo!
 
 ## Overview
 
-This tutorial will walk you through different concepts of Tekton and OpenShift Pipelines while given you some practical knowledge of the tool. It will walk you through pipeline concepts and how to create and run a simple pipeline for building and deploying Cloud Native applications using OpenShift Pipelines
+This tutorial will walk you through different concepts of Tekton and OpenShift Pipelines while given you some practical knowledge of the tool. It will walk you through pipeline concepts and how to create and run a simple pipeline for building and deploying serverless Cloud Native applications using OpenShift Pipelines.
 
 The tutorial is divide in different section:
 * [Learn about Tekton concepts](#concepts)
@@ -49,7 +49,6 @@ The custom resources needed to define a pipeline are listed below:
 * `Pipeline`: the definition of the pipeline and the `Tasks` that it should perform
 * `TaskRun`: the execution and result of running an instance of a task
 * `PipelineRun`: the execution and result of running an instance of a pipeline, which includes several `TaskRuns`
-* `Pipeline Resources`: The set of objects that are going to be used as inputs to a `Task` and can be output by a `Task`
 * `Workspace`: Concept by which the Task step and Pipeline task can share a common filesystem. 
 * [`Triggers`](#triggers): Concept that allows you to automate the running of pipelines ex: A GitHub push triggers a PipelineRun. Using `tektoncd/triggers` with `tektoncd/pipeline` enables you to
 easily create a complete CI/CD systems where the execution is
@@ -59,7 +58,7 @@ easily create a complete CI/CD systems where the execution is
 
 #### Steps to create a pipeline:
 * Create custom or install existing reusable `Tasks` from the [catalogue](https://github.com/tektoncd/catalog)
-* Create a `Pipeline` and `PipelineResources` to define your application's delivery pipeline
+* Create a `Pipeline`to define your application's delivery pipeline
 * Create a `PersistentVolumeClaim` to provide the volume/filesystem for pipeline execution or provide a `VolumeClaimTemplate` which creates a `PersistentVolumeClaim`
 * Create a `PipelineRun` to instantiate and invoke the pipeline
 
@@ -133,7 +132,7 @@ done
 Create a project to use for this tutorial using the OpenShift CLI.
 
 ```
-oc new-project pipeline-demo
+oc new-project serverless-pipeline-demo
 ```
 
 Install OpenShift Serverless operator in your OpenShift cluster. Follow [these instruction](/docs/install-serverless-operator.md) to install the operator using the console if not already present.
@@ -143,7 +142,7 @@ Install OpenShift Serverless operator in your OpenShift cluster. Follow [these i
 Create the project and install the Openshift operator by execution this script: We use a loops since the installation of the operators can delay things.
 
 ```
-oc new-project pipeline-demo
+oc new-project serverless-pipeline-demo
 ```
 ```
 until oc apply -k setup/overlays/demo
@@ -161,10 +160,10 @@ oc get serviceaccount
 
 To run the maven tasks we need to create two workspace. One to store the source code and one to cache de maven dependencies. For this, we will create 2 PVC `sources-pvc` and `maven-repo-pvc` using the following command.
 ```
-oc apply -n pipeline-demo -f tekton/workspaces/source-pvc.yaml
+oc apply -n serverless-pipeline-demo -f tekton/workspaces/source-pvc.yaml
 ```
 ```
-oc apply -n pipeline-demo -f tekton/workspaces/maven-repo-pvc.yaml
+oc apply -n serverless-pipeline-demo -f tekton/workspaces/maven-repo-pvc.yaml
 ```
 
 #### Required Cluster Task
@@ -180,7 +179,7 @@ To create the pipeline we need the following cluster tasks to be available:
 
 We have finished setting up our environment, it is now time to deploy the pipeline. 
 ```
-oc apply -n pipeline-demo -f tekton/pipelines/knative-app-pipeline.yaml
+oc apply -n serverless-pipeline-demo -f tekton/pipelines/knative-app-pipeline.yaml
 ```
 
 #### Create the PipelineRun
@@ -188,7 +187,7 @@ oc apply -n pipeline-demo -f tekton/pipelines/knative-app-pipeline.yaml
 Now that the pipeline is deploy. Lets create a pipelinerun tu run the pipeline manually.
 
 ```
-oc create -n pipeline-demo -f tekton/pipelineruns/simple-quarkus-service-run.yaml
+oc create -n serverless-pipeline-demo -f tekton/pipelineruns/simple-quarkus-service-run.yaml
 ```
 
 ### Triggers
@@ -197,7 +196,7 @@ As of now, we have been running the pipeline manually, which is nice in certain 
 
 Here are the different elements in a trigger:
 
-* `TriggerTemplate`: defines a resource template that receives input from the `TriggerBindings`, while then performing a series of actions that result in the creation of new `PipelineResources` and initiation of a new `PipelineRun`.
+* `TriggerTemplate`: defines a resource template that receives input from the `TriggerBindings`, while then performing a series of actions that result in the creation of a new `PipelineRun`.
 * `TriggerBindings`: extract the fields from an event payload and store them as parameters.
 *`EventListeners`: provide an endpoint, or an event sink, that listen for incoming HTTP-based events with a JSON payload. The `EventListener` performs lightweight event processing on the payload using Event Interceptors, which identify the type of payload and optionally modify it. Pipeline Triggers support four types of Interceptors: Webhook Interceptors, GitHub Interceptors, GitLab Interceptors, and Common Expression Language (CEL) Interceptors.
 
@@ -206,17 +205,17 @@ Here are the different elements in a trigger:
 
 Now that we have the pipeline created let create a `TriggerTemplate`:
 ```
-oc apply -n pipeline-demo -f tekton/triggers/simple-quarkus-service-trigger-template.yaml
+oc apply -n serverless-pipeline-demo -f tekton/triggers/simple-quarkus-service-trigger-template.yaml
 ```
 
 Then we need to create the `TriggerBinding` for a GitHub payload:
 ```
-oc apply -n pipeline-demo -f tekton/triggers/github-pr-trigger-binding.yaml
+oc apply -n serverless-pipeline-demo -f tekton/triggers/github-pr-trigger-binding.yaml
 ```
 
 Now we can create the eventListener and expose the service:
 ```
-oc apply -n pipeline-demo -f tekton/triggers/github-eventlistener.yaml
+oc apply -n serverless-pipeline-demo -f tekton/triggers/github-eventlistener.yaml
 ```
 
 Now, let's expose the service and retrieve the route URL
