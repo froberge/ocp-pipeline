@@ -23,7 +23,9 @@ spec:
         serviceAccountName: pipeline
         params:
           - name: IMAGE_NAME
-            value: image-registry.openshift-image-registry.svc:5000/serverless-pipeline-demo/simple-quarkus-service
+            value: simple-quarkus-service
+          - name: IMAGE_DEST
+            value: image-registry.openshift-image-registry.svc:5000/serverless-pipeline-demo
           - name: APP_NAME
             value: simple-quarkus-service
           - name: GITHUB_REPO_URL

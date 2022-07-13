@@ -12,6 +12,9 @@ spec:
     - name: IMAGE_NAME
       description: The fully qualified image name.
       type: string
+    - name: IMAGE_DEST
+      description: The destination repo URL for the image
+      type: string
     - name: APP_NAME
       description: The app Name
       type: string
@@ -82,7 +85,7 @@ spec:
         - build-app
       params:
         - name: IMAGE
-          value: '$(params.IMAGE_NAME)'
+          value: '$(params.IMAGE_DEST)/$(params.IMAGE_NAME)'
         # since pushing to internal registry we skip TLS verify
         - name: TLSVERIFY
           value: 'false'
@@ -102,4 +105,4 @@ spec:
             - 'create'
             - '$(params.APP_NAME)'
             - '--force'
-            - '--image=$(params.IMAGE_NAME)@$(tasks.build-image.results.IMAGE_DIGEST)'
+            - '--image=$(params.IMAGE_DEST)/$(params.IMAGE_NAME)@$(tasks.build-image.results.IMAGE_DIGEST)'
